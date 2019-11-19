@@ -1,0 +1,67 @@
+work_dir: '032_efnet_b3_Unet_img384_RandomSizedCrop_half_cosine_fold2'
+
+data:
+  params:
+    idx_fold: 2
+    num_folds: 5
+  num_classes: 4
+
+model:
+  arch: 'Unet'
+  encoder: 'efficientnet-b3'
+  pretrained: 'imagenet'
+
+train:
+  batch_size: 16
+  num_epochs: 40
+
+test:
+  batch_size: 8
+  best_threshold: 0.5
+  min_size: [10000, 10000, 10000, 20000]
+
+transforms:
+  train:
+    Resize:
+      p: 1
+      height: 384
+      width: 576
+    HorizontalFlip: True
+    VerticalFlip: True
+    Cutout:
+      num_holes: 10
+      hole_size: 25
+    RandomCropScale: True
+    RandomCrop:
+      p: 0
+      height: 320
+      width: 480
+
+  test:
+    Resize:
+      p: 1
+      height: 384
+      width: 576
+    HorizontalFlip: False
+    VerticalFlip: False
+    Cutout:
+      num_holes: 0
+      hole_size: 25
+    RandomCropScale: False
+
+loss:
+  name: "BCEDice"
+
+optimizer:
+  name: 'Adam'
+  params:
+    encoder_lr: 1.0e-3
+    decoder_lr: 1.0e-2
+
+scheduler:
+  name: 'half_cosine'
+  params:
+    t_max: 10
+
+num_workers: 2
+device: 'cuda'

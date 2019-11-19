@@ -1,0 +1,67 @@
+work_dir: '017_efnet_b3_Unet_img320_cutout5_aug_fold4'
+
+data:
+  params:
+    idx_fold: 4
+    num_folds: 5
+  num_classes: 4
+
+model:
+  arch: 'Unet'
+  encoder: 'efficientnet-b3'
+  pretrained: 'imagenet'
+
+train:
+  batch_size: 16
+  num_epochs: 40
+
+test:
+  batch_size: 16
+  best_threshold: 0.5
+  min_size: [10000, 10000, 10000, 10000]
+
+transforms:
+  train:
+    Resize:
+      p: 1
+      height: 320
+      width: 480
+    HorizontalFlip: True
+    VerticalFlip: True
+    Cutout:
+      num_holes: 5
+      hole_size: 25
+    RandomCropScale: False
+    RandomCrop:
+      p: 0
+      height: 320
+      width: 480
+    Noise: True
+    Contrast: True
+
+  test:
+    Resize:
+      p: 1
+      height: 320
+      width: 480
+    HorizontalFlip: False
+    VerticalFlip: False
+    Cutout:
+      num_holes: 0
+      hole_size: 25
+    RandomCropScale: False
+
+loss:
+  name: "BCEDice"
+
+optimizer:
+  name: 'Adam'
+  params:
+    encoder_lr: 1.0e-5
+    decoder_lr: 1.0e-3
+
+scheduler:
+  name: 'plateau'
+
+num_workers: 2
+device: 'cuda'

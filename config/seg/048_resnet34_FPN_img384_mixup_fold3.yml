@@ -1,0 +1,70 @@
+work_dir: '048_resnet34_FPN_img384_mixup_fold3'
+
+data:
+  params:
+    idx_fold: 3
+    num_folds: 5
+  num_classes: 4
+
+model:
+  arch: 'FPN'
+  encoder: 'resnet34'
+  pretrained: 'imagenet'
+
+train:
+  batch_size: 16
+  num_epochs: 30
+  early_stop_patience: 5
+  mixup: True
+
+
+test:
+  batch_size: 16
+  best_threshold: 0.5
+  min_size: [20000, 20000, 20000, 20000]
+
+transforms:
+  train:
+    Resize:
+      p: 1
+      height: 384
+      width: 576
+    HorizontalFlip: True
+    VerticalFlip: True
+    Cutout:
+      num_holes: 10
+      hole_size: 25
+    RandomCropScale: False
+    RandomCrop:
+      p: 0
+      height: 320
+      width: 480
+    Noise: True
+    Contrast: True
+
+  test:
+    Resize:
+      p: 1
+      height: 384
+      width: 576
+    HorizontalFlip: False
+    VerticalFlip: False
+    Cutout:
+      num_holes: 0
+      hole_size: 25
+    RandomCropScale: False
+
+loss:
+  name: "BCEDice"
+
+optimizer:
+  name: 'Adam'
+  params:
+    encoder_lr: 1.0e-4
+    decoder_lr: 1.0e-3
+
+scheduler:
+  name: 'plateau'
+
+num_workers: 2
+device: 'cuda'
