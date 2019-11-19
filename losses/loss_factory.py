@@ -1,14 +1,13 @@
+from catalyst.dl.utils import criterion
+from torch.nn.modules.loss import _Loss
+from functools import partial
+from catalyst.contrib.criterion import FocalLossBinary
+from . import functions
+import torch.nn as nn
+from torch.nn import functional as F
 import sys
 
 sys.path.insert(0, '../..')
-from torch.nn import functional as F
-
-import torch.nn as nn
-from . import functions
-from catalyst.contrib.criterion import FocalLossBinary
-from functools import partial
-from torch.nn.modules.loss import _Loss
-from catalyst.dl.utils import criterion
 
 
 class JaccardLoss(nn.Module):
@@ -60,6 +59,7 @@ class BCEDiceLoss(DiceLoss):
         bce = self.bce(y_pr, y_gt)
         return dice + bce
 
+
 class WeightedBCEDiceLoss(DiceLoss):
     __name__ = 'bce_dice_loss'
 
@@ -84,7 +84,8 @@ class WeightedBCELoss(nn.Module):
         logit = logit.view(batch_size, num_class)
         truth = truth.view(batch_size, num_class)
         assert (logit.shape == truth.shape)
-        loss = F.binary_cross_entropy_with_logits(logit, truth, reduction='none')
+        loss = F.binary_cross_entropy_with_logits(
+            logit, truth, reduction='none')
 
         if weight is None:
             loss = loss.mean()
@@ -94,7 +95,8 @@ class WeightedBCELoss(nn.Module):
             neg = (truth < 0.5).float()
             pos_sum = pos.sum().item() + 1e-12
             neg_sum = neg.sum().item() + 1e-12
-            loss = (self.pos_weight * pos * loss / pos_sum + self.neg_weight * neg * loss / neg_sum).sum()
+            loss = (self.pos_weight * pos * loss / pos_sum +
+                    self.neg_weight * neg * loss / neg_sum).sum()
             # raise NotImplementedError
 
         return loss

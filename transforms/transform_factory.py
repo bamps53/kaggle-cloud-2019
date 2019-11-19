@@ -52,13 +52,14 @@ def get_transforms(phase_config):
                 height=height,
                 width=width,
                 w2h_ratio=width/height)
-            )
+        )
     if phase_config.ShiftScaleRotate:
         list_transforms.append(ShiftScaleRotate(p=1))
 
     if phase_config.RandomCrop.p > 0:
         list_transforms.append(
-            RandomCrop(phase_config.RandomCrop.height, phase_config.RandomCrop.width, p=1)
+            RandomCrop(phase_config.RandomCrop.height,
+                       phase_config.RandomCrop.width, p=1)
         )
     if phase_config.Noise:
         list_transforms.append(
@@ -78,18 +79,18 @@ def get_transforms(phase_config):
     if phase_config.Blur:
         list_transforms.append(
             OneOf([
-            MotionBlur(p=.2),
-            MedianBlur(blur_limit=3, p=0.1),
-            Blur(blur_limit=3, p=0.1),
-        ], p=0.5)
+                MotionBlur(p=.2),
+                MedianBlur(blur_limit=3, p=0.1),
+                Blur(blur_limit=3, p=0.1),
+            ], p=0.5)
         )
     if phase_config.Distort:
         list_transforms.append(
             OneOf([
-            OpticalDistortion(p=0.3),
-            GridDistortion(p=.1),
-            IAAPiecewiseAffine(p=0.3),
-        ], p=0.5)
+                OpticalDistortion(p=0.3),
+                GridDistortion(p=.1),
+                IAAPiecewiseAffine(p=0.3),
+            ], p=0.5)
         )
 
     if phase_config.Cutout.num_holes > 0:
@@ -105,4 +106,3 @@ def get_transforms(phase_config):
     )
 
     return Compose(list_transforms)
-

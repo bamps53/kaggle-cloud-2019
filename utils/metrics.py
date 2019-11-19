@@ -8,7 +8,8 @@ def dice_score(pred_mask, true_mask, empty_score=1.0, threshold=0.5):
     im2 = np.asarray(true_mask).astype(np.bool)
 
     if im1.shape != im2.shape:
-        raise ValueError("Shape mismatch: im1 and im2 must have the same shape.")
+        raise ValueError(
+            "Shape mismatch: im1 and im2 must have the same shape.")
 
     im_sum = im1.sum() + im2.sum()
     if im_sum == 0:

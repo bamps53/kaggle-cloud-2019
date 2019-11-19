@@ -13,12 +13,15 @@ class CustomNet(nn.Module):
         self.pretrained = pretrained
 
         if 'se_resnext' in self.model_name:
-            self.net = getattr(pretrainedmodels, self.model_name)(pretrained='imagenet')
+            self.net = getattr(pretrainedmodels, self.model_name)(
+                pretrained='imagenet')
             self.net.avg_pool = nn.AdaptiveAvgPool2d(1)
-            self.net.last_linear = nn.Linear(self.net.last_linear.in_features, self.num_classes)
+            self.net.last_linear = nn.Linear(
+                self.net.last_linear.in_features, self.num_classes)
 
         elif 'resnet' in self.model_name:
-            self.net = getattr(torchvision.models, self.model_name)(pretrained=True)
+            self.net = getattr(torchvision.models,
+                               self.model_name)(pretrained=True)
             self.net.avg_pool = nn.AdaptiveAvgPool2d(1)
             self.net.fc = nn.Linear(self.net.fc.in_features, self.num_classes)
 
@@ -27,7 +30,8 @@ class CustomNet(nn.Module):
                 self.net = EfficientNet.from_pretrained(self.model_name)
             else:
                 self.net = EfficientNet.from_name(self.model_name)
-            self.net._fc = nn.Linear(self.net._fc.in_features, self.num_classes)
+            self.net._fc = nn.Linear(
+                self.net._fc.in_features, self.num_classes)
 
     def fresh_params(self):
         if 'se_resnext' in self.model_name:

@@ -28,7 +28,7 @@ class CutMixCallback(CriterionCallback):
 
     def on_loader_start(self, state: RunnerState):
         self.is_needed = not self.on_train_only or \
-                         state.loader_name.startswith("train")
+            state.loader_name.startswith("train")
 
     def on_batch_start(self, state: RunnerState):
         if not self.is_needed:
@@ -42,9 +42,11 @@ class CutMixCallback(CriterionCallback):
         self.index = torch.randperm(state.input[self.fields[0]].shape[0])
         self.index.to(state.device)
 
-        bbx1, bby1, bbx2, bby2 = rand_bbox(state.input[self.input_key].size(), self.lam)
+        bbx1, bby1, bbx2, bby2 = rand_bbox(
+            state.input[self.input_key].size(), self.lam)
         for f in self.fields:
-            state.input[f][:, :, bbx1:bbx2, bby1:bby2] = state.input[f][self.index, :, bbx1:bbx2, bby1:bby2]
+            state.input[f][:, :, bbx1:bbx2,
+                           bby1:bby2] = state.input[f][self.index, :, bbx1:bbx2, bby1:bby2]
 
 
 __all__ = ["CutMixCallback"]

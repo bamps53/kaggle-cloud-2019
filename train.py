@@ -1,21 +1,19 @@
+from transforms import get_transforms
+from schedulers import get_scheduler
+from losses import get_loss
+from optimizers import get_optimizer
+from datasets import make_loader
+from utils.callbacks import CutMixCallback
+from utils.config import load_config, save_config
+import segmentation_models_pytorch as smp
+from catalyst.utils import get_device
+from catalyst.dl.callbacks import DiceCallback, IouCallback, CheckpointCallback, MixupCallback, EarlyStoppingCallback, OptimizerCallback, CriterionCallback
+from catalyst.dl import SupervisedRunner
 import argparse
 import os
 import warnings
 
 warnings.filterwarnings("ignore")
-
-from catalyst.dl import SupervisedRunner
-from catalyst.dl.callbacks import DiceCallback, IouCallback, CheckpointCallback, MixupCallback, EarlyStoppingCallback, OptimizerCallback, CriterionCallback
-from catalyst.utils import get_device
-import segmentation_models_pytorch as smp
-
-from utils.config import load_config, save_config
-from utils.callbacks import CutMixCallback
-from datasets import make_loader
-from optimizers import get_optimizer
-from losses import get_loss
-from schedulers import get_scheduler
-from transforms import get_transforms
 
 
 def run(config_file):
@@ -76,18 +74,20 @@ def run(config_file):
     callbacks = [DiceCallback(), IouCallback()]
 
     if config.train.early_stop_patience > 0:
-        callbacks.append(EarlyStoppingCallback(patience=config.train.early_stop_patience))
+        callbacks.append(EarlyStoppingCallback(
+            patience=config.train.early_stop_patience))
 
     if config.train.accumulation_size > 0:
         accumulation_steps = config.train.accumulation_size // config.train.batch_size
         callbacks.extend(
             [CriterionCallback(),
-            OptimizerCallback(accumulation_steps=accumulation_steps)]
+             OptimizerCallback(accumulation_steps=accumulation_steps)]
         )
 
     # to resume from check points if exists
     if os.path.exists(config.work_dir + '/checkpoints/best.pth'):
-        callbacks.append(CheckpointCallback(resume=config.work_dir + '/checkpoints/last_full.pth'))
+        callbacks.append(CheckpointCallback(
+            resume=config.work_dir + '/checkpoints/last_full.pth'))
 
     if config.train.mixup:
         callbacks.append(MixupCallback())

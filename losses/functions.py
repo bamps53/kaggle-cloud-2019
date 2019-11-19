@@ -15,7 +15,7 @@ def iou(pr, gt, eps=1e-7, threshold=None, activation='sigmoid'):
     """
 
     if activation is None or activation == "none":
-        activation_fn = lambda x: x
+        def activation_fn(x): return x
     elif activation == "sigmoid":
         activation_fn = torch.nn.Sigmoid()
     elif activation == "softmax2d":
@@ -51,7 +51,7 @@ def f_score(pr, gt, beta=1, eps=1e-7, threshold=None, activation='sigmoid'):
     """
 
     if activation is None or activation == "none":
-        activation_fn = lambda x: x
+        def activation_fn(x): return x
     elif activation == "sigmoid":
         activation_fn = torch.nn.Sigmoid()
     elif activation == "softmax2d":
@@ -71,6 +71,6 @@ def f_score(pr, gt, beta=1, eps=1e-7, threshold=None, activation='sigmoid'):
     fn = torch.sum(gt) - tp
 
     score = ((1 + beta ** 2) * tp + eps) \
-            / ((1 + beta ** 2) * tp + beta ** 2 * fn + fp + eps)
+        / ((1 + beta ** 2) * tp + beta ** 2 * fn + fp + eps)
 
     return score

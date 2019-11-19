@@ -9,11 +9,12 @@ from sklearn.model_selection import StratifiedKFold
 
 from utils.config import load_config
 
-CLASSES = {'Fish' : 0,
-           'Flower' : 1,
-           'Gravel' : 2,
-           'Sugar' : 3
+CLASSES = {'Fish': 0,
+           'Flower': 1,
+           'Gravel': 2,
+           'Sugar': 3
            }
+
 
 def stratified_group_k_fold(
         label: str,
@@ -82,13 +83,15 @@ def split_folds(config_file):
 
     df = pd.read_csv(config.data.train_df_path)
     df['ImageId'] = df['Image_Label'].map(lambda x: x.split('_')[0])
-    df['ClassId'] = df['Image_Label'].map(lambda x: x.split('_')[1]).map(CLASSES).astype(int)
+    df['ClassId'] = df['Image_Label'].map(
+        lambda x: x.split('_')[1]).map(CLASSES).astype(int)
     df['exists'] = df['EncodedPixels'].notnull().astype(int)
     df['ClassId0'] = [row.ClassId if row.exists else 0 for row in df.itertuples()]
     df['fold'] = stratified_group_k_fold(
         label='ClassId0', group_column='ImageId', df=df, n_splits=config.data.params.num_folds
     )
-    pv_df = df.pivot(index='ImageId', columns='ClassId', values='EncodedPixels')
+    pv_df = df.pivot(index='ImageId', columns='ClassId',
+                     values='EncodedPixels')
     pv_df = pv_df.merge(df[['ImageId', 'fold']], on='ImageId', how='left')
     pv_df = pv_df.drop_duplicates()
     pv_df = pv_df.set_index('ImageId')

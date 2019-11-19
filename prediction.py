@@ -1,3 +1,8 @@
+from transforms import get_transforms
+from datasets import make_loader, INV_CLASSES
+from utils.config import load_config
+from utils.utils import mask2rle, post_process
+from utils import predict_batch, load_model
 import argparse
 import json
 import os
@@ -10,11 +15,6 @@ import cv2
 
 warnings.filterwarnings("ignore")
 
-from utils import predict_batch, load_model
-from utils.utils import mask2rle, post_process
-from utils.config import load_config
-from datasets import make_loader, INV_CLASSES
-from transforms import get_transforms
 
 SUB_HEIGHT, SUB_WIDTH = 350, 525
 
@@ -30,7 +30,6 @@ def run_seg(config_file_seg):
         config.work_dir = '/content/drive/My Drive/kaggle_cloud/' + config.work_dir
     elif 'KAGGLE_WORKING_DIR' in os.environ:
         config.work_dir = '/kaggle/working/' + config.work_dir
-
 
     if os.path.exists('cls_preds.csv'):
         testloader = make_loader(
@@ -69,7 +68,8 @@ def run_seg(config_file_seg):
     with torch.no_grad():
         for i, (batch_fnames, batch_images) in enumerate(tqdm(testloader)):
             batch_images = batch_images.to(config.device)
-            batch_preds = predict_batch(model, batch_images, tta=config.test.tta)
+            batch_preds = predict_batch(
+                model, batch_images, tta=config.test.tta)
 
             for fname, preds in zip(batch_fnames, batch_preds):
                 for cls in range(preds.shape[0]):

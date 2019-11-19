@@ -54,7 +54,8 @@ def make_mask(row_id, df, height=1400, width=2100):
             masks[:, :, idx] = mask.reshape(height, width, order='F')
     return fname, masks
 
-def resize_rle(rle,before=(1400, 2100), after=(350, 525)):
+
+def resize_rle(rle, before=(1400, 2100), after=(350, 525)):
     if rle is not np.nan:
         mask = rle2mask(rle, before[0], before[1])
         mask = cv2.resize(mask, (after[1], after[0]))
@@ -89,9 +90,9 @@ def load_model(config_path):
         config.checkpoint_path = config.work_dir + '/checkpoints/best.pth'
     print(config.checkpoint_path)
 
-
     if config.model.arch == 'Classification':
-        model = CustomNet(config.model.encoder, config.data.num_classes, pretrained=False)
+        model = CustomNet(config.model.encoder,
+                          config.data.num_classes, pretrained=False)
     else:
         # create segmentation model with pre-trained encoder
         model = getattr(smp, config.model.arch)(

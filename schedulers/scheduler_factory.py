@@ -2,6 +2,7 @@ import math
 
 from torch.optim.lr_scheduler import _LRScheduler, ReduceLROnPlateau, CosineAnnealingLR, CosineAnnealingWarmRestarts
 
+
 class HalfCosineAnnealingLR(_LRScheduler):
 
     def __init__(self, optimizer, T_max, last_epoch=-1):
@@ -10,9 +11,11 @@ class HalfCosineAnnealingLR(_LRScheduler):
 
     def get_lr(self):
         if self.last_epoch % (2 * self.T_max) < self.T_max:
-            cos_unit = 0.5 * (math.cos(math.pi * self.last_epoch / self.T_max) - 1)
+            cos_unit = 0.5 * \
+                (math.cos(math.pi * self.last_epoch / self.T_max) - 1)
         else:
-            cos_unit = 0.5 * (math.cos(math.pi * (self.last_epoch / self.T_max - 1)) - 1)
+            cos_unit = 0.5 * \
+                (math.cos(math.pi * (self.last_epoch / self.T_max - 1)) - 1)
 
         lrs = []
         for base_lr in self.base_lrs:
@@ -30,9 +33,10 @@ def get_scheduler(optimizer, config):
                                       last_epoch=-1)
     elif config.scheduler.name == 'cosine_warmup':
         scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=config.scheduler.params.t_max, eta_min=1e-6,
-                                      last_epoch=-1)
+                                                last_epoch=-1)
     elif config.scheduler.name == 'half_cosine':
-        scheduler = HalfCosineAnnealingLR(optimizer, config.scheduler.params.t_max, last_epoch=-1)
+        scheduler = HalfCosineAnnealingLR(
+            optimizer, config.scheduler.params.t_max, last_epoch=-1)
     else:
         scheduler = None
     return scheduler

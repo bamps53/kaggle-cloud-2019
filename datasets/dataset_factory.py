@@ -10,16 +10,17 @@ from torch.utils.data import Dataset
 
 from utils import make_mask
 
-CLASSES = {'Fish' : 0,
-           'Flower' : 1,
-           'Gravel' : 2,
-           'Sugar' : 3
+CLASSES = {'Fish': 0,
+           'Flower': 1,
+           'Gravel': 2,
+           'Sugar': 3
            }
 INV_CLASSES = {0: 'Fish',
                1: 'Flower',
                2: 'Gravel',
                3: 'Sugar'
                }
+
 
 class TrainDataset(Dataset):
     def __init__(self, df, data_folder, phase, transforms, img_size, num_classes=4, return_fnames=False):
@@ -33,7 +34,8 @@ class TrainDataset(Dataset):
         self.return_fnames = return_fnames
 
     def __getitem__(self, idx):
-        image_id, mask = make_mask(idx, self.df, height=self.img_size[0], width=self.img_size[1])
+        image_id, mask = make_mask(
+            idx, self.df, height=self.img_size[0], width=self.img_size[1])
         image_path = os.path.join(self.root, image_id)
         img = jpeg.JPEG(str(image_path)).decode()
         augmented = self.transforms(image=img, mask=mask)
@@ -166,7 +168,8 @@ def make_loader(
 
     else:  # train or valid
         if os.path.exists('folds.csv'):
-            folds = pd.read_csv('folds.csv', index_col='ImageId', nrows=num_rows)
+            folds = pd.read_csv(
+                'folds.csv', index_col='ImageId', nrows=num_rows)
         else:
             raise Exception('You need to run split_folds.py beforehand.')
 
@@ -177,11 +180,16 @@ def make_loader(
                 pseudo_df = pd.read_csv(pseudo_label_path)
                 #pseudo_df['ImageId'], pseudo_df['ClassId'] = zip(*pseudo_df['Image_Label'].str.split('_'))
                 #pseudo_df['ClassId'] = pseudo_df['ClassId'].astype(int)
-                pseudo_df['ImageId'] = pseudo_df['Image_Label'].map(lambda x: x.split('_')[0])
-                pseudo_df['ClassId'] = pseudo_df['Image_Label'].map(lambda x: x.split('_')[1]).map(CLASSES).astype(int)
-                pseudo_df['exists'] = pseudo_df['EncodedPixels'].notnull().astype(int)
-                pseudo_df['ClassId0'] = [row.ClassId if row.exists else 0 for row in pseudo_df.itertuples()]
-                pv_df = pseudo_df.pivot(index='ImageId', columns='ClassId', values='EncodedPixels')
+                pseudo_df['ImageId'] = pseudo_df['Image_Label'].map(
+                    lambda x: x.split('_')[0])
+                pseudo_df['ClassId'] = pseudo_df['Image_Label'].map(
+                    lambda x: x.split('_')[1]).map(CLASSES).astype(int)
+                pseudo_df['exists'] = pseudo_df['EncodedPixels'].notnull().astype(
+                    int)
+                pseudo_df['ClassId0'] = [
+                    row.ClassId if row.exists else 0 for row in pseudo_df.itertuples()]
+                pv_df = pseudo_df.pivot(
+                    index='ImageId', columns='ClassId', values='EncodedPixels')
                 folds = pd.concat([folds, pv_df], axis=0)
 
             is_shuffle = True
@@ -190,9 +198,11 @@ def make_loader(
             is_shuffle = False
 
         if task == 'seg':
-            image_dataset = TrainDataset(folds, data_folder, phase, transforms, img_size, num_classes, return_fnames)
+            image_dataset = TrainDataset(
+                folds, data_folder, phase, transforms, img_size, num_classes, return_fnames)
         else:
-            image_dataset = ClsTrainDataset(folds, data_folder, phase, transforms, num_classes, return_fnames)
+            image_dataset = ClsTrainDataset(
+                folds, data_folder, phase, transforms, num_classes, return_fnames)
 
     return DataLoader(
         image_dataset,
